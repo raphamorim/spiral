@@ -12,7 +12,5 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "lodash": "~3.8.0"
-  }
+  "dependencies": {}
 }

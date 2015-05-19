@@ -14,14 +14,9 @@
 
   // Create event e put the god in there
   var even = document.createEvent('Event')
-  even.god = {
-    init: function () {
-      console.log('init')
-    }
-  }
+  even.God = Methods
 
   document.addEventListener('DOMContentLoaded', function () {
-    // Emmit de event
     even.initEvent('god-ready', true, true)
     document.dispatchEvent(even)
   }, false)
