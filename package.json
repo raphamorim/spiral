@@ -1,0 +1,29 @@
+{
+  "name": "spiral",
+  "version": "8.0.0",
+  "description": "Install [NodeJS](https://nodejs.org/), [GIT](http://git-scm.com/) and NPM.",
+  "main": "Gulpfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-babel": "^5.1.0",
+    "gulp-concat": "^2.5.2",
+    "gulp-minify-css": "^1.1.1",
+    "gulp-minify-html": "^1.0.2",
+    "gulp-sass": "^2.0.1",
+    "require-dir": "^0.3.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felquis/circular.git"
+  },
+  "author": "Felquis Gimenes - oi@felquis.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/felquis/circular/issues"
+  },
+  "homepage": "https://github.com/felquis/circular#readme"
+}
