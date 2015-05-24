@@ -214,5 +214,5 @@
   */
   circular = new Circular()
 
-  circular.loadModule(['js/modules/start'])
+  circular.loadModule(['scripts/modules/start'])
 }())
