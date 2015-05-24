@@ -1,20 +1,27 @@
-## Circular
+## Spiral
 
-Install [NodeJS](https://nodejs.org/), [GIT](http://git-scm.com/) and NPM.
+Instale [NodeJS](https://nodejs.org/), [GIT](http://git-scm.com/) e NPM.
 
-Install `http-server` to quickly init local server
+Clone o repositório
 ```shell
-npm install http-server -g
+git clone git@github.com:felquis/spiral.git
+
+cd spiral/
 ```
 
-Git repository
+Instale as dependências globais
 ```shell
-git clone git@github.com:felquis/circular.git
-
-cd circular/
+npm install --global gulp
 ```
 
-Init server
+Instale as dependências do projeto
+```shell
+npm install -d
 ```
-http-server -o
+
+Ative o server
 ```
+gulp serve
+```
+
+Abra `localhost:8000` e abra o DevTolls
