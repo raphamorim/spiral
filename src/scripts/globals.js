@@ -1,4 +1,4 @@
-;(function(){
+;(function(global){
   'use strict'
 
   /**
@@ -6,7 +6,9 @@
    *
    * no @return
    */
-  function Globals(){}
+  function Globals(){
+    console.log('globals created')
+  }
 
   /**
    * Retorna Object Window do contexto de um iframe
@@ -46,9 +48,9 @@
   }
 
   document.addEventListener('registerNewModule', function(event){
-    event.circular.registerNewModule({
+    event.spiral.registerNewModule({
       _init: Globals,
       name: 'globals'
     })
   })
-}())
+}(window))

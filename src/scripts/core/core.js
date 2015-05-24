@@ -1,4 +1,4 @@
-;(function(){
+;(function(window){
 
   'use strict'
 
@@ -7,10 +7,11 @@
    *
    * no @return
    */
-  var Spiral = function(){
+  var Spiral = function () {
     this.modules = {}
   }
-  var spiral
+
+  heir.inherit(Spiral, EventEmitter);
 
   /**
    * Pega a instance de um módulo
@@ -20,10 +21,6 @@
    */
   Spiral.prototype.use = function(name){
     var module = this.modules[name]
-
-    if (module) {
-      //throw('Module ' + module + ' not available')
-    }
 
     return module || {}
   }
@@ -52,29 +49,27 @@
 
     var instance
 
-    var init = moduleDefinition._init || function(){ return moduleDefinition._var }
+    if (!!this.use(moduleDefinition.name).name) {
+      return
+    }
 
     if (moduleDefinition._init) {
       instance = new moduleDefinition._init(spiral)
-    } else if (moduleDefinition._var) {
+      instance.name = moduleDefinition.name
+    } else {
       instance = {
         name: moduleDefinition.name,
         _var: moduleDefinition._var
       }
     }
 
+    console.log(moduleDefinition.name)
+
     instance.name = moduleDefinition.name
 
-    var instanteStatus = this.use(moduleDefinition.name).status
+    this.modules[moduleDefinition.name] = instance
 
-    if ('loading' === instanteStatus) {
-
-      instance.status = 'loaded'
-
-      this.modules[moduleDefinition.name] = instance
-
-      Spiral.prototype.checkModuleDependencies.apply(spiral)
-    }
+    Spiral.prototype.checkModuleDependencies.apply(spiral, [instance])
   }
 
   /**
@@ -92,45 +87,20 @@
    *
    * no @return
    */
-  Spiral.prototype.checkModuleDependencies = function(){
+  Spiral.prototype.checkModuleDependencies = function(moduleInstance){
     var self = this
 
-    self.eachModule(function(module){
-      var deps = module.dependencies || []
+    let a = self.use(moduleInstance.name)
 
-      var allLoaded = self.isAllLoaded(module.dependencies)
+    console.log(moduleInstance)
 
-      if (allLoaded) {
-        module.moduleReady = true
-        console.log(module.name, 'Emmit event this module is ready to run')
-        self.emmit(module.name + 'ModuleReady')
-      } else {
-        self.loadModule(deps)
-      }
-    })
-  }
-
-  /**
-   * Retorna de todas as dependências de um module estão carregadas
-   *
-   * @param {String} module - Nome ou Path do module a ser carregado
-   * @returns {Boolean} result
-   */
-  Spiral.prototype.isAllLoaded = function(dependencies){
-
-    var self = this
-
-    dependencies = dependencies || []
-
-    var result = true
-
-    dependencies.forEach(function(value){
-      if (!(self.getModuleName(value) in self.modules)) {
-        result = false
-      }
-    }, 0)
-
-    return result
+    if (typeof moduleInstance.dependencies === 'undefined') {
+      spiral.trigger(moduleInstance.name + 'ModuleReady')
+    } else if (moduleInstance.dependencies.length > 0) {
+      self.loadModule(moduleInstance.dependencies);
+    } else {
+      console.log('oi? ', moduleInstance.name, moduleInstance.dependencies)
+    }
   }
 
   /**
@@ -155,12 +125,8 @@
         var moduleName = self.getModuleName(module)
         var script = document.createElement('script')
 
-        if (!!self.use(moduleName).status) {
+        if (!!self.use(moduleName).name) {
           return
-        }
-
-        self.modules[moduleName] = {
-          status: 'loading'
         }
 
         script.src = module + '.js'
@@ -238,19 +204,22 @@
 
   /**
    * @param {string} eventName - Nome do evento a ser disparado
+   * @param {Object} data - Dados úteis enviados para o receptor
    * no @return
    */
-  Spiral.prototype.emmit = function(eventName){
+  Spiral.prototype.emmit = function(eventName, data){
 
     var fireOnThis = document
 
     if( document.createEvent ) {
       var evObj = document.createEvent('MouseEvents')
       evObj.spiral = spiral
+      evObj.spiralTransfer = data
       evObj.initEvent( eventName, true, false )
       fireOnThis.dispatchEvent( evObj )
     } else if (document.createEventObject) { //ie
       var evObj = document.createEventObject()
+      evObj.spiralTransfer = data
       fireOnThis.fireEvent( 'on' + eventName, evObj )
     }
   }
@@ -258,7 +227,7 @@
   /*
     init aplication
   */
-  spiral = new Spiral()
+  var spiral = new Spiral()
 
   spiral.loadModule(['scripts/modules/start'])
-}())
+}(window))
