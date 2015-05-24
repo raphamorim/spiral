@@ -7,10 +7,10 @@
    *
    * no @return
    */
-  var Circular = function(){
+  var Spiral = function(){
     this.modules = {}
   }
-  var circular
+  var spiral
 
   /**
    * Pega a instance de um módulo
@@ -18,7 +18,7 @@
    * @param {String} name - Nome do módulo (sem path)
    * @returns {Object} - Instancia do módulo requisitado
    */
-  Circular.prototype.use = function(name){
+  Spiral.prototype.use = function(name){
     var module = this.modules[name]
 
     if (module) {
@@ -34,7 +34,7 @@
    * @param {function} func - Função a ser executada a cada módulo
    * no @return
    */
-  Circular.prototype.eachModule = function(func){
+  Spiral.prototype.eachModule = function(func){
     var self = this
 
     Object.keys(this.modules).forEach(function(module){
@@ -48,14 +48,14 @@
    * @param {Object} moduleDefinition - Objeto de um módulo
    * no @return
    */
-  Circular.prototype.registerNewModule = function(moduleDefinition){
+  Spiral.prototype.registerNewModule = function(moduleDefinition){
 
     var instance
 
     var init = moduleDefinition._init || function(){ return moduleDefinition._var }
 
     if (moduleDefinition._init) {
-      instance = new moduleDefinition._init(circular)
+      instance = new moduleDefinition._init(spiral)
     } else if (moduleDefinition._var) {
       instance = {
         name: moduleDefinition.name,
@@ -73,7 +73,7 @@
 
       this.modules[moduleDefinition.name] = instance
 
-      Circular.prototype.checkModuleDependencies.apply(circular)
+      Spiral.prototype.checkModuleDependencies.apply(spiral)
     }
   }
 
@@ -82,7 +82,7 @@
    *
    * @returns {String} - Nome do módulo
    */
-  Circular.prototype.getModuleName = function(path){
+  Spiral.prototype.getModuleName = function(path){
     return path.split('/').pop().split('.js').shift()
   }
 
@@ -92,7 +92,7 @@
    *
    * no @return
    */
-  Circular.prototype.checkModuleDependencies = function(){
+  Spiral.prototype.checkModuleDependencies = function(){
     var self = this
 
     self.eachModule(function(module){
@@ -116,7 +116,7 @@
    * @param {String} module - Nome ou Path do module a ser carregado
    * @returns {Boolean} result
    */
-  Circular.prototype.isAllLoaded = function(dependencies){
+  Spiral.prototype.isAllLoaded = function(dependencies){
 
     var self = this
 
@@ -139,7 +139,7 @@
    * @param {String|Array|Object} moduleRepresentation - Nome ou Path do module a ser carregado ou uma lista de nomes e paths
    * no @return
    */
-  Circular.prototype.loadModule = function(moduleRepresentation){
+  Spiral.prototype.loadModule = function(moduleRepresentation){
 
     var self = this
 
@@ -166,7 +166,7 @@
         script.src = module + '.js'
 
         script.addEventListener('load', function(event){
-          Circular.prototype.loadModuleComplete.apply(circular, [event, script, moduleName])
+          Spiral.prototype.loadModuleComplete.apply(spiral, [event, script, moduleName])
         }, false)
 
         script.addEventListener('error', function(event){
@@ -174,7 +174,7 @@
 
           moduleName = self.getModuleName(src)
 
-          Circular.prototype.loadModuleError.apply(circular, [event, script, moduleName])
+          Spiral.prototype.loadModuleError.apply(spiral, [event, script, moduleName])
         }, false)
 
         document.body.appendChild(script)
@@ -188,7 +188,7 @@
        */
       object: function(moduleRepresentation){
         Object.keys(moduleRepresentation).forEach(function(moduleIndex){
-          Circular.prototype.loadModule.apply(circular, [moduleRepresentation[moduleIndex]])
+          Spiral.prototype.loadModule.apply(spiral, [moduleRepresentation[moduleIndex]])
         })
       }
     }
@@ -206,8 +206,8 @@
    * @param {String} moduleName - Nome do módulo
    * no @return
    */
-  Circular.prototype.loadModuleComplete = function(event, script, moduleName){
-    Circular.prototype.emmit.apply(circular, ['registerNewModule'])
+  Spiral.prototype.loadModuleComplete = function(event, script, moduleName){
+    Spiral.prototype.emmit.apply(spiral, ['registerNewModule'])
 
     //remove all script tags in a apropriate moment
     //i don't know what is this moment right now
@@ -222,7 +222,7 @@
    * @param {String} moduleName - Nome do módulo
    * no @return
    */
-  Circular.prototype.loadModuleError = function(event, script, moduleName){
+  Spiral.prototype.loadModuleError = function(event, script, moduleName){
     var module = this.use(moduleName)
 
     if (!module) {
@@ -240,13 +240,13 @@
    * @param {string} eventName - Nome do evento a ser disparado
    * no @return
    */
-  Circular.prototype.emmit = function(eventName){
+  Spiral.prototype.emmit = function(eventName){
 
     var fireOnThis = document
 
     if( document.createEvent ) {
       var evObj = document.createEvent('MouseEvents')
-      evObj.circular = circular
+      evObj.spiral = spiral
       evObj.initEvent( eventName, true, false )
       fireOnThis.dispatchEvent( evObj )
     } else if (document.createEventObject) { //ie
@@ -258,7 +258,7 @@
   /*
     init aplication
   */
-  circular = new Circular()
+  spiral = new Spiral()
 
-  circular.loadModule(['scripts/modules/start'])
+  spiral.loadModule(['scripts/modules/start'])
 }())
