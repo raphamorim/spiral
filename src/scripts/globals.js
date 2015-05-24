@@ -1,9 +1,9 @@
-;(function () {
+;(function(){
   'use strict'
 
-  function Globals () {}
+  function Globals(){}
 
-  var getWindow = function () {
+  var getWindow = function(){
     var iframe = document.createElement('iframe')
     iframe.style.display = 'none'
     document.body.appendChild(iframe)
@@ -15,12 +15,12 @@
     return result
   }
 
-  Globals.prototype.get = function() {
-    var iframeWindow = getWindow(),
-        result = []
-        property
+  Globals.prototype.get = function(){
+    var iframeWindow = getWindow()
+    var result = []
+    var property
 
-    // Window
+    //window
     for (property in global) {
       if (!(property in iframeWindow)) {
         result.push(property)
@@ -30,7 +30,7 @@
     return result
   }
 
-  document.addEventListener('registerNewModule', function (event) {
+  document.addEventListener('registerNewModule', function(event){
     event.circular.registerNewModule({
       _init: Globals,
       name: 'globals'
