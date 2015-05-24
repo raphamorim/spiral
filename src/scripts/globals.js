@@ -1,8 +1,18 @@
 ;(function(){
   'use strict'
 
+  /**
+   * Object do nosso módulo
+   *
+   * no @return
+   */
   function Globals(){}
 
+  /**
+   * Retorna Object Window do contexto de um iframe
+   *
+   * @returns {Object} - Window object do contexto do iframe
+   */
   var getWindow = function(){
     var iframe = document.createElement('iframe')
     iframe.style.display = 'none'
@@ -15,6 +25,11 @@
     return result
   }
 
+  /**
+   * Pega nome das variáveis globais
+   *
+   * @returns {Array} - Lista de nomes de variáveis globais
+   */
   Globals.prototype.get = function(){
     var iframeWindow = getWindow()
     var result = []

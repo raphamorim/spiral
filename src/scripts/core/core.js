@@ -2,16 +2,22 @@
 
   'use strict'
 
+  /**
+   * Object do nosso core
+   *
+   * no @return
+   */
   var Circular = function(){
     this.modules = {}
   }
   var circular
 
-  /*
-    return module instance
-
-    @module: String = module name
-  */
+  /**
+   * Pega a instance de um módulo
+   *
+   * @param {String} name - Nome do módulo (sem path)
+   * @returns {Object} - Instancia do módulo requisitado
+   */
   Circular.prototype.use = function(name){
     var module = this.modules[name]
 
@@ -22,11 +28,12 @@
     return module || {}
   }
 
-  /*
-    rxecute a function on each module
-
-    @func: Function
-  */
+  /**
+   * Itera pelos módulos executando uma função
+   *
+   * @param {function} func - Função a ser executada a cada módulo
+   * no @return
+   */
   Circular.prototype.eachModule = function(func){
     var self = this
 
@@ -35,11 +42,12 @@
     })
   }
 
-  /*
-    register a new/loaded module
-
-    @moduleDefinition: ObjectModuleDefinition = Module definition
-  */
+  /**
+   * Registra um novo módulo
+   *
+   * @param {Object} moduleDefinition - Objeto de um módulo
+   * no @return
+   */
   Circular.prototype.registerNewModule = function(moduleDefinition){
 
     var instance
@@ -69,16 +77,21 @@
     }
   }
 
-  /*
-    get module name from path
-  */
+  /**
+   * Retorna o nome de um módulo pelo filename de um path
+   *
+   * @returns {String} - Nome do módulo
+   */
   Circular.prototype.getModuleName = function(path){
     return path.split('/').pop().split('.js').shift()
   }
 
-  /*
-    check/notify each module if it's dependencies is completely loaded
-  */
+  /**
+   * Verifica e notifica se  as dependências de um módulo estão carregadas
+   * também carrega as dependências não carregadas
+   *
+   * no @return
+   */
   Circular.prototype.checkModuleDependencies = function(){
     var self = this
 
@@ -97,6 +110,12 @@
     })
   }
 
+  /**
+   * Retorna de todas as dependências de um module estão carregadas
+   *
+   * @param {String} module - Nome ou Path do module a ser carregado
+   * @returns {Boolean} result
+   */
   Circular.prototype.isAllLoaded = function(dependencies){
 
     var self = this
@@ -114,16 +133,24 @@
     return result
   }
 
-  /*
-    load a module
-
-    @module: String = path to JavaScript file
-  */
+  /**
+   * Carrega um módulos e listas de módulos
+   *
+   * @param {String|Array|Object} moduleRepresentation - Nome ou Path do module a ser carregado ou uma lista de nomes e paths
+   * no @return
+   */
   Circular.prototype.loadModule = function(moduleRepresentation){
 
     var self = this
 
     var actionsForEachType = {
+
+      /**
+       * Carrega um module pelo nome ou path
+       *
+       * @param {String} module - Nome ou Path do module a ser carregado
+       * no @return
+       */
       string: function(module){
         var moduleName = self.getModuleName(module)
         var script = document.createElement('script')
@@ -152,6 +179,13 @@
 
         document.body.appendChild(script)
       },
+
+      /**
+       * Itera por Array ou Objeto de módulo e chamada loadModule para cada módulo
+       *
+       * @param {Object} moduleRepresentation - Nada mais que um Array ou Object de modules
+       * no @return
+       */
       object: function(moduleRepresentation){
         Object.keys(moduleRepresentation).forEach(function(moduleIndex){
           Circular.prototype.loadModule.apply(circular, [moduleRepresentation[moduleIndex]])
@@ -164,9 +198,14 @@
     action(moduleRepresentation)
   }
 
-  /*
-    when a module is loaded
-  */
+  /**
+   * Método usando quando um modulo é carregado com sucesso
+   *
+   * @param {Object} event - Event Object
+   * @param {Object} script - Script tag
+   * @param {String} moduleName - Nome do módulo
+   * no @return
+   */
   Circular.prototype.loadModuleComplete = function(event, script, moduleName){
     Circular.prototype.emmit.apply(circular, ['registerNewModule'])
 
@@ -175,9 +214,14 @@
     //script.parentElement.removeChild(script)
   }
 
-  /*
-    when a error occurs while loading a module
-  */
+  /**
+   * Método usando quando um modulo falha o carregamento
+   *
+   * @param {Object} event - Event Object
+   * @param {Object} script - Script tag
+   * @param {String} moduleName - Nome do módulo
+   * no @return
+   */
   Circular.prototype.loadModuleError = function(event, script, moduleName){
     var module = this.use(moduleName)
 
@@ -192,11 +236,10 @@
     //script.parentElement.removeChild(script)
   }
 
-  /*
-    fire events to `document`
-
-    @eventName: String = Event name as event definition patterns
-  */
+  /**
+   * @param {string} eventName - Nome do evento a ser disparado
+   * no @return
+   */
   Circular.prototype.emmit = function(eventName){
 
     var fireOnThis = document

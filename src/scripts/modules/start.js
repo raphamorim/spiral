@@ -1,14 +1,19 @@
 (function(){
   'use strict'
 
-  var Start = function(circular){
+  /**
+   * Objeto do módulo
+   *
+   * @param {Object} spiral - InspiralInstance
+   */
+  var Start = function(spiral){
     document.addEventListener('startModuleReady', function(){
       console.log('Olá')
     })
   }
 
   document.addEventListener('registerNewModule', function(event){
-    event.circular.registerNewModule({
+    event.spiral.registerNewModule({
       _init: Start,
       name: 'start'
     })

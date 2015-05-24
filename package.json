@@ -13,6 +13,7 @@
     "gulp-minify-html": "^1.0.2",
     "gulp-sass": "^2.0.1",
     "gulp-webserver": "^0.9.1",
+    "jscs-jsdoc": "^1.0.1",
     "require-dir": "^0.3.0"
   },
   "scripts": {

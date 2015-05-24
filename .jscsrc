@@ -1,5 +1,4 @@
 {
-  "disallowCapitalizedComments": true,
   "disallowMultipleSpaces": true,
   "disallowNamedUnassignedFunctions": true,
   "validateQuoteMarks": { "mark": "'", "escape": true },
@@ -39,5 +38,23 @@
   "disallowMultipleVarDecl": true,
   "disallowMultipleSpaces": true,
   "disallowMultipleLineStrings": true,
-  "disallowMixedSpacesAndTabs": true
+  "disallowMixedSpacesAndTabs": true,
+
+  "plugins": [
+    "jscs-jsdoc"
+  ],
+
+  "jsDoc": {
+    "checkAnnotations": "closurecompiler",
+    "checkTypes": "strictNativeCase",
+    "enforceExistence": "exceptExports",
+    "requireParamTypes": true,
+    "checkRedundantParams": true,
+    "checkRedundantReturns": true,
+    "checkReturnTypes": true,
+    "checkTypes": true,
+    "checkRedundantAccess": "enforceLeadingUnderscore",
+    "requireHyphenBeforeDescription": true,
+    "requireNewlineAfterDescription": true
+  }
 }
