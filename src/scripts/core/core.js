@@ -9,9 +9,33 @@
    */
   var Spiral = function () {
     this.modules = {}
-  }
 
-  heir.inherit(Spiral, EventEmitter);
+    var events = {}, empty = [];
+
+    /**
+     *  On: listen to events
+     */
+    this.on = function(type, func, ctx){
+      (events[type] = events[type] || []).push([func, ctx])
+    }
+    /**
+     *  Off: stop listening to event / specific callback
+     */
+    this.off = function(type, func){
+      type || (events = {})
+      var list = events[type] || empty,
+      i = list.length = func ? list.length : 0
+      while(i--) func == list[i][0] && list.splice(i,1)
+    }
+    /**
+     * Emit: send event, callbacks will be triggered
+     */
+    this.emit = function(type){
+      var args = empty.slice.call(arguments, 1),
+      list = events[type] || empty, i=0, j
+      while(j=list[i++]) j[0].apply(j[1], args)
+    };
+  }
 
   /**
    * Pega a instance de um módulo
@@ -34,73 +58,29 @@
   Spiral.prototype.eachModule = function(func){
     var self = this
 
-    Object.keys(this.modules).forEach(function(module){
-      func.apply(self, [self.use(module)])
+    Object.keys(this.modules).forEach(function(module, index){
+      func.apply(self, [self.modules[module], module, index])
     })
   }
 
   /**
    * Registra um novo módulo
    *
-   * @param {Object} moduleDefinition - Objeto de um módulo
+   * @param {Object} module - Objeto de um módulo
    * no @return
    */
-  Spiral.prototype.registerNewModule = function(moduleDefinition){
+  Spiral.prototype.add = function(moduleName, module){
 
-    var instance
-
-    if (!!this.use(moduleDefinition.name).name) {
+    if (this.modules[moduleName]) {
       return
     }
 
-    if (moduleDefinition._init) {
-      instance = new moduleDefinition._init(spiral)
-      instance.name = moduleDefinition.name
-    } else {
-      instance = {
-        name: moduleDefinition.name,
-        _var: moduleDefinition._var
-      }
+    this.modules[moduleName] = {
+      name: moduleName,
+      module: module
     }
 
-    console.log(moduleDefinition.name)
-
-    instance.name = moduleDefinition.name
-
-    this.modules[moduleDefinition.name] = instance
-
-    Spiral.prototype.checkModuleDependencies.apply(spiral, [instance])
-  }
-
-  /**
-   * Retorna o nome de um módulo pelo filename de um path
-   *
-   * @returns {String} - Nome do módulo
-   */
-  Spiral.prototype.getModuleName = function(path){
-    return path.split('/').pop().split('.js').shift()
-  }
-
-  /**
-   * Verifica e notifica se  as dependências de um módulo estão carregadas
-   * também carrega as dependências não carregadas
-   *
-   * no @return
-   */
-  Spiral.prototype.checkModuleDependencies = function(moduleInstance){
-    var self = this
-
-    let a = self.use(moduleInstance.name)
-
-    console.log(moduleInstance)
-
-    if (typeof moduleInstance.dependencies === 'undefined') {
-      spiral.trigger(moduleInstance.name + 'ModuleReady')
-    } else if (moduleInstance.dependencies.length > 0) {
-      self.loadModule(moduleInstance.dependencies);
-    } else {
-      console.log('oi? ', moduleInstance.name, moduleInstance.dependencies)
-    }
+    this.emit(moduleName + '-ready');
   }
 
   /**
@@ -122,25 +102,22 @@
        * no @return
        */
       string: function(module){
-        var moduleName = self.getModuleName(module)
         var script = document.createElement('script')
-
-        if (!!self.use(moduleName).name) {
-          return
-        }
 
         script.src = module + '.js'
 
         script.addEventListener('load', function(event){
-          Spiral.prototype.loadModuleComplete.apply(spiral, [event, script, moduleName])
+          Spiral.prototype.emmitToDocument.apply(spiral, ['module-request'])
         }, false)
 
         script.addEventListener('error', function(event){
           var src = event.target.getAttribute('src')
 
-          moduleName = self.getModuleName(src)
+          console.log('error loading '. src, event)
 
-          Spiral.prototype.loadModuleError.apply(spiral, [event, script, moduleName])
+          //remove all script tags in a apropriate moment
+          //i don't know what is this moment right now
+          //script.parentElement.removeChild(script)
         }, false)
 
         document.body.appendChild(script)
@@ -165,49 +142,11 @@
   }
 
   /**
-   * Método usando quando um modulo é carregado com sucesso
-   *
-   * @param {Object} event - Event Object
-   * @param {Object} script - Script tag
-   * @param {String} moduleName - Nome do módulo
-   * no @return
-   */
-  Spiral.prototype.loadModuleComplete = function(event, script, moduleName){
-    Spiral.prototype.emmit.apply(spiral, ['registerNewModule'])
-
-    //remove all script tags in a apropriate moment
-    //i don't know what is this moment right now
-    //script.parentElement.removeChild(script)
-  }
-
-  /**
-   * Método usando quando um modulo falha o carregamento
-   *
-   * @param {Object} event - Event Object
-   * @param {Object} script - Script tag
-   * @param {String} moduleName - Nome do módulo
-   * no @return
-   */
-  Spiral.prototype.loadModuleError = function(event, script, moduleName){
-    var module = this.use(moduleName)
-
-    if (!module) {
-      return
-    }
-
-    module.status = 'error'
-
-    //remove all script tags in a apropriate moment
-    //i don't know what is this moment right now
-    //script.parentElement.removeChild(script)
-  }
-
-  /**
    * @param {string} eventName - Nome do evento a ser disparado
-   * @param {Object} data - Dados úteis enviados para o receptor
+   * @param {Object} data - Instância da Spiral para recepcionar um módulo
    * no @return
    */
-  Spiral.prototype.emmit = function(eventName, data){
+  Spiral.prototype.emmitToDocument = function(eventName, data){
 
     var fireOnThis = document
 
@@ -219,6 +158,7 @@
       fireOnThis.dispatchEvent( evObj )
     } else if (document.createEventObject) { //ie
       var evObj = document.createEventObject()
+      evObj.spiral = spiral
       evObj.spiralTransfer = data
       fireOnThis.fireEvent( 'on' + eventName, evObj )
     }

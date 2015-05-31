@@ -6,9 +6,9 @@
    *
    * no @return
    */
-  function Globals(){
-    console.log('globals created')
-  }
+  function Globals(){}
+
+  Globals.prototype.dependencies = ['scripts/core/observables']
 
   /**
    * Retorna Object Window do contexto de um iframe
